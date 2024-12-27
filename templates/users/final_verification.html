@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <!-- Progress Indicator -->
+    <div class="mb-8 flex justify-center">
+        <div class="relative">
+            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 border-4 border-emerald-500">
+                <i class="fas fa-check-double text-2xl text-emerald-500"></i>
+            </div>
+            <div class="mt-2 text-center">
+                <span class="text-sm font-medium text-emerald-600">Final Step</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Verification Card -->
+    <div class="bg-white rounded-xl shadow-xl p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Final Verification</h2>
+            <p class="text-gray-600 mt-2">Enter the final verification code to complete your withdrawal process</p>
+        </div>
+
+        <form method="POST" class="space-y-6" id="finalVerificationForm">
+            {% csrf_token %}
+            
+            <!-- Code Input Section -->
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium" for="final_code">
+                    Final Verification Code
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock-alt text-gray-400"></i>
+                    </div>
+                    <input type="text" 
+                           name="final_code" 
+                           id="final_code" 
+                           required
+                           maxlength="6"
+                           placeholder="Enter 6-digit verification code"
+                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+                </div>
+            </div>
+
+            <!-- Verification Summary -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-medium text-gray-800 mb-3">Verification Progress:</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-gray-600">Withdrawal OTP Verified</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-gray-600">Tax Code Verified</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-gray-600">Identity Document Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                    class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2">
+                <i class="fas fa-shield-check"></i>
+                <span>Complete Verification</span>
+            </button>
+        </form>
+
+        <!-- Success Message (Initially Hidden) -->
+        <div id="successMessage" class="hidden mt-6">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">Verification Successful!</h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            <p>Your withdrawal request has been approved. Processing will begin shortly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="mt-6 bg-white rounded-xl shadow-xl p-4">
+        <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+                <i class="fas fa-shield-alt text-gray-400 text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-800">Enhanced Security</h3>
+                <p class="text-xs text-gray-500">This final step ensures maximum protection for your transaction</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('finalVerificationForm');
+    const codeInput = document.getElementById('final_code');
+    const successMessage = document.getElementById('successMessage');
+
+    // Code input formatting
+    codeInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9A-Z]/g, '').slice(0, 8).toUpperCase();
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Verifying...
+        `;
+
+        // Optional: Show success message after verification
+        // setTimeout(() => {
+        //     form.classList.add('hidden');
+        //     successMessage.classList.remove('hidden');
+        // }, 2000);
+    });
+});
+</script>
+{% endblock %}

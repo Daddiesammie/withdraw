@@ -1,0 +1,138 @@
+{% extends 'admin_portal/base.html' %}
+
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex space-x-4">
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-gray-500 text-sm">Total Users</h3>
+            <p class="text-2xl font-bold">{{ total_users }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-gray-500 text-sm">Verified Users</h3>
+            <p class="text-2xl font-bold">{{ verified_users }}</p>
+        </div>
+    </div>
+    
+    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" 
+            onclick="document.getElementById('createUserModal').classList.remove('hidden')">
+        Create New User
+    </button>
+</div>
+
+<!-- User List -->
+<div class="bg-white rounded-xl shadow">
+    <div class="p-6 border-b">
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold">Users</h2>
+            <div class="flex space-x-4">
+                <input type="text" 
+                       placeholder="Search users..." 
+                       class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Users</option>
+                    <option value="verified">Verified</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Verification</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for user in users %}
+                <tr>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</div>
+                                <div class="text-sm text-gray-500">ID: {{ user.id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">{{ user.email }}</td>
+                    <td class="px-6 py-4">${{ user.balance }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-2 w-20 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600" style="width: {{ user.verification_progress }}%;"></div>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-500">{{ user.verification_progress }}%</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'admin_portal:user_detail' user.id %}" 
+                           class="text-blue-600 hover:text-blue-900">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div id="createUserModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Create New User</h3>
+            <form method="POST" action="{% url 'admin_portal:create_user' %}">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" name="username" required
+                               class="mt-1 block w-full border rounded-md shadow-sm py-2 px-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" required
+                               class="mt-1 block w-full border rounded-md shadow-sm py-2 px-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" name="first_name" required
+                               class="mt-1 block w-full border rounded-md shadow-sm py-2 px-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" name="last_name" required
+                               class="mt-1 block w-full border rounded-md shadow-sm py-2 px-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" name="password" required
+                               class="mt-1 block w-full border rounded-md shadow-sm py-2 px-3">
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="document.getElementById('createUserModal').classList.add('hidden')"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

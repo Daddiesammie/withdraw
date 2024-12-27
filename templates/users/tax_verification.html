@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <!-- Progress Indicator -->
+    <div class="mb-8 flex justify-center">
+        <div class="relative">
+            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 border-4 border-green-500">
+                <i class="fas fa-file-invoice-dollar text-2xl text-green-500"></i>
+            </div>
+            <div class="mt-2 text-center">
+                <span class="text-sm font-medium text-green-600">Step 2 of 4</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Verification Card -->
+    <div class="bg-white rounded-xl shadow-xl p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Tax Verification</h2>
+            <p class="text-gray-600 mt-2">Enter your tax verification code to proceed with the withdrawal</p>
+        </div>
+
+        <form method="POST" class="space-y-6" id="taxVerificationForm">
+            {% csrf_token %}
+            
+            <!-- Tax Code Input Section -->
+            <div class="space-y-4">
+                <label class="block text-gray-700 font-medium" for="tax_code">
+                    Tax Verification Code
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-hashtag text-gray-400"></i>
+                    </div>
+                    <input type="text" 
+                           name="tax_code" 
+                           id="tax_code" 
+                           required
+                           maxlength="6"
+                           placeholder="Enter 6-digit tax code"
+                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                </div>
+            </div>
+
+            <!-- Information Box -->
+            <div class="bg-amber-50 rounded-lg p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-amber-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-amber-800">Important Information</h3>
+                        <div class="mt-2 text-sm text-amber-700">
+                            <p>This verification ensures compliance with tax regulations. Your tax code can be found in your withdrawal confirmation email.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                    class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <span>Verify Tax Code</span>
+            </button>
+        </form>
+
+        <!-- Help Links -->
+        <div class="mt-6 space-y-4">
+            <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <i class="fas fa-question-circle"></i>
+                <a href="#" class="hover:text-green-600 transition-colors duration-200">How to find my tax code?</a>
+            </div>
+            <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <i class="fas fa-envelope"></i>
+                <a href="#" class="hover:text-green-600 transition-colors duration-200">Request new tax code</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Section -->
+    <div class="mt-6 bg-white rounded-xl shadow-xl p-4">
+        <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+                <i class="fas fa-life-ring text-gray-400 text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-800">Tax Support Available</h3>
+                <p class="text-xs text-gray-500">Get help with your tax verification</p>
+            </div>
+            <a href="#" class="ml-auto text-green-600 hover:text-green-700 text-sm font-medium">
+                Contact Tax Support
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const taxInput = document.getElementById('tax_code');
+    const form = document.getElementById('taxVerificationForm');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    // Tax code input formatting
+    taxInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9A-Z]/g, '').slice(0, 8).toUpperCase();
+    });
+
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Verifying...
+        `;
+    });
+});
+</script>
+{% endblock %}

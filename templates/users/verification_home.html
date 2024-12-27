@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    {% if request.session.admin_id %}
+<div class="fixed bottom-6 right-6">
+    <form method="POST" action="{% url 'admin_portal:return_to_admin' %}">
+        {% csrf_token %}
+        <button type="submit" 
+                class="bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700">
+            <i class="fas fa-undo mr-2"></i>Return to Admin
+        </button>
+    </form>
+</div>
+{% endif %}
+
+
+    <!-- Account Overview Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Balance Card -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-medium opacity-90">Available Balance</h3>
+                <i class="fas fa-wallet text-2xl opacity-75"></i>
+            </div>
+            <p class="text-3xl font-bold mb-2">${{ user.balance|floatformat:2 }}</p>
+            <div class="flex items-center text-sm opacity-75">
+                <i class="fas fa-clock mr-2"></i>
+                <span>Last updated: {% now "F j, Y H:i" %}</span>
+            </div>
+        </div>
+
+        <!-- Withdrawal Amount Card -->
+        <div class="bg-white rounded-xl shadow-xl p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-medium text-gray-700">Pending Withdrawal</h3>
+                <i class="fas fa-money-bill-wave text-2xl text-gray-400"></i>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 mb-2">${{ user.withdrawal_amount|floatformat:2 }}</p>
+            {% if not user.is_verified %}
+                <a href="{% url 'users:withdrawal_verification' %}" 
+                   class="inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-150">
+                    <i class="fas fa-lock"></i>
+                    <span>Process Withdrawal</span>
+                </a>
+            {% else %}
+                <div class="flex items-center text-green-600">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>Verified for withdrawal</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Account Status Card -->
+        <div class="bg-white rounded-xl shadow-xl p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-medium text-gray-700">Verification Status</h3>
+                <i class="fas fa-shield-alt text-2xl text-gray-400"></i>
+            </div>
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Progress</span>
+                    <span class="text-blue-600 font-semibold">{{ progress }}%</span>
+                </div>
+                <div class="h-2 bg-gray-200 rounded-full">
+                    <div class="h-2 bg-blue-600 rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600">
+                {% if progress < 100 %}
+                    Complete verification to unlock withdrawals
+                {% else %}
+                    All verifications completed
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Account Details Section -->
+    <div class="bg-white rounded-xl shadow-xl p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Account Information</h2>
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Personal Account</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-user text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Full Name</p>
+                        <p class="font-medium text-gray-800">{{ user.get_full_name }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-envelope text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Email Address</p>
+                        <p class="font-medium text-gray-800">{{ user.email }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-phone text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Phone Number</p>
+                        <p class="font-medium text-gray-800">{{ user.phone_number|default:"Not provided" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-university text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Bank Name</p>
+                        <p class="font-medium text-gray-800">{{ user.bank_name|default:"Not provided" }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-user-circle text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Account Name</p>
+                        <p class="font-medium text-gray-800">{{ user.account_name|default:"Not provided" }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-credit-card text-gray-400"></i>
+                    <div>
+                        <p class="text-sm text-gray-500">Account Number</p>
+                        <p class="font-medium text-gray-800">{{ user.account_number|default:"Not provided" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Steps Section -->
+    <div class="bg-white rounded-xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Verification Steps</h2>
+        <div class="space-y-4">
+            {% for step in verification_steps %}
+            <div class="relative">
+                {% if not forloop.last %}
+                    <div class="absolute left-5 top-12 h-full border-l-2 border-gray-200"></div>
+                {% endif %}
+                <div class="flex items-start">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full {% if step.completed %}bg-green-100 text-green-500{% else %}bg-gray-100 text-gray-400{% endif %} mr-4">
+                        <i class="fas {% if step.completed %}fa-check{% else %}fa-lock{% endif %}"></i>
+                    </div>
+                    <div class="flex-grow bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-gray-800">{{ step.title }}</h3>
+                            {% if step.completed %}
+                                <span class="flex items-center text-green-500">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    Completed
+                                </span>
+                            {% elif step.available %}
+                                <a href="{{ step.url }}" class="inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-150">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <span>Start</span>
+                                </a>
+                            {% else %}
+                                <span class="text-gray-400">
+                                    <i class="fas fa-lock mr-1"></i>
+                                    Locked
+                                </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-600">{{ step.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

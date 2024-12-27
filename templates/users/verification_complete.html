@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+    <div class="max-w-lg w-full">
+        <!-- Success Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 text-center relative overflow-hidden">
+            <!-- Animated Success Icon -->
+            <div class="mb-6 relative">
+                <div class="animate-success-ring absolute inset-0 border-4 border-green-500 rounded-full"></div>
+                <div class="text-green-500 transform scale-100 animate-success-check">
+                    <svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Verification Complete!</h2>
+            <div class="space-y-3 mb-8">
+                <p class="text-gray-600 text-lg">Congratulations! Your account has been fully verified.</p>
+                <p class="text-gray-500">Your withdrawal request will be processed within 24 hours.</p>
+            </div>
+
+            <!-- Transaction Details -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-8">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Transaction ID</span>
+                        <span class="font-medium text-gray-800">#{{ request.user.id }}{{ now|date:"Ymd" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Status</span>
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Verified</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Estimated Time</span>
+                        <span class="font-medium text-gray-800">24 hours</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-4">
+                <a href="{% url 'users:verification_home' %}" 
+                   class="block w-full bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700 transition duration-200 font-medium">
+                    Return to Dashboard
+                </a>
+                <!-- Add this to your existing template where the download button is -->
+                <a href="{% url 'users:download_receipt' %}" 
+                class="block w-full bg-gray-50 text-gray-700 py-3 px-6 rounded-xl hover:bg-gray-100 transition duration-200 font-medium">
+                <i class="fas fa-download mr-2"></i>Download Receipt
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Support Contact -->
+        <div class="mt-6 bg-white rounded-xl shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <i class="fas fa-headset text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Need assistance?</p>
+                        <p class="text-xs text-gray-500">Our support team is available 24/7</p>
+                    </div>
+                </div>
+                <a href="#" class="text-blue-600 hover:text-blue-700 font-medium text-sm">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes success-ring {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes success-check {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.animate-success-ring {
+    animation: success-ring 0.6s ease-out;
+}
+
+.animate-success-check {
+    animation: success-check 0.5s ease-out 0.4s both;
+}
+</style>
+{% endblock %}

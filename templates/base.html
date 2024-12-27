@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureWithdraw Pro | Secure Financial Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Top Bar -->
+    <div class="bg-blue-600 text-white py-2">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center text-sm">
+                <div class="flex items-center space-x-4 mb-2 sm:mb-0">
+                    <span class="whitespace-nowrap"><i class="fas fa-phone-alt mr-2"></i>24/7 Support</span>
+                    <span class="whitespace-nowrap"><i class="fas fa-shield-alt mr-2"></i>Bank-Level Security</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span><i class="fas fa-globe mr-2"></i>EN</span>
+                    <span class="whitespace-nowrap"><i class="far fa-clock mr-2"></i>{% now "F j, Y" %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="bg-white shadow-md" x-data="{ mobileMenuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'users:verification_home' %}" class="flex items-center space-x-3">
+                        <i class="fas fa-lock-alt text-blue-600 text-2xl"></i>
+                        <span class="font-bold text-xl text-gray-800">SecureWithdraw<span class="text-blue-600">Pro</span></span>
+                    </a>
+                </div>
+
+                {% if user.is_authenticated %}
+                <!-- Mobile menu button -->
+                <div class="flex items-center sm:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-500">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Desktop menu -->
+                <div class="hidden sm:flex items-center space-x-6">
+                    <div class="flex items-center space-x-3 text-gray-700">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium">{{ user.email }}</span>
+                            <span class="text-xs text-gray-500">Account ID: {{ user.id }}</span>
+                        </div>
+                    </div>
+                    <div class="h-8 w-px bg-gray-200"></div>
+                    <a href="{% url 'logout' %}" class="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-150">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                    
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        {% if user.is_authenticated %}
+        <div class="sm:hidden" x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false">
+            <div class="px-4 pt-2 pb-3 space-y-3 bg-white border-t">
+                <div class="flex items-center space-x-3 text-gray-700">
+                    <i class="fas fa-user-circle text-xl"></i>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium">{{ user.email }}</span>
+                        <span class="text-xs text-gray-500">Account ID: {{ user.id }}</span>
+                    </div>
+                </div>
+                <a href="#" class="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-150">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div class="rounded-lg p-4 mb-4 flex items-center justify-between {% if message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-red-50 text-red-700 border border-red-200{% endif %}">
+            <div class="flex items-center">
+                <i class="{% if message.tags == 'success' %}fas fa-check-circle text-green-400{% else %}fas fa-exclamation-circle text-red-400{% endif %} text-lg mr-3"></i>
+                <p class="font-medium">{{ message }}</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center md:text-left">
+                    <h3 class="text-lg font-semibold mb-4">About SecureWithdrawPro</h3>
+                    <p class="text-sm">Secure, fast, and reliable withdrawal processing system with multi-layer verification for your peace of mind.</p>
+                </div>
+                <div class="text-center md:text-left">
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Security</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="text-center md:text-left">
+                    <h3 class="text-lg font-semibold mb-4">Contact Support</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center justify-center md:justify-start">
+                            <i class="fas fa-envelope mr-2"></i>support@securewithdraw.pro
+                        </li>
+                        <li class="flex items-center justify-center md:justify-start">
+                            <i class="fas fa-phone mr-2"></i>+1 (888) 123-4567
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
+                <p>&copy; {% now "Y" %} SecureWithdrawPro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

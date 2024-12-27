@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureWithdraw Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <h1 class="text-xl font-bold">Admin Portal</h1>
+            </div>
+            <nav class="mt-4">
+                <a href="{% url 'admin_portal:dashboard' %}" class="block px-4 py-2 hover:bg-blue-700">
+                    <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                </a>
+                <a href="{% url 'admin_portal:user_list' %}" class="block px-4 py-2 hover:bg-blue-700">
+                    <i class="fas fa-users mr-2"></i> Users
+                </a>
+                <a href="{% url 'admin_portal:document_review' %}" class="block px-4 py-2 hover:bg-blue-700">
+                    <i class="fas fa-file-alt mr-2"></i> Documents
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Bar -->
+            <div class="bg-white shadow-md p-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">{% block page_title %}{% endblock %}</h2>
+                    <div class="flex items-center space-x-4">
+                        <span>{{ request.user.email }}</span>
+                        <a href="#" class="text-red-600">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Document Review Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Document Filter
+    const filterSelect = document.querySelector('#documentFilter');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            const status = this.value;
+            filterDocuments(status);
+        });
+    }
+
+    // Image Preview
+    const documentPreviews = document.querySelectorAll('.document-preview');
+    documentPreviews.forEach(preview => {
+        preview.addEventListener('click', function() {
+            const imageUrl = this.dataset.url;
+            showImagePreview(imageUrl);
+        });
+    });
+});
+
+// User Management Functionality
+const userManagement = {
+    init() {
+        this.setupSearch();
+        this.setupFilters();
+        this.setupBulkActions();
+    },
+
+    setupSearch() {
+        const searchInput = document.querySelector('#userSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(function(e) {
+                searchUsers(e.target.value);
+            }, 300));
+        }
+    },
+
+    setupFilters() {
+        const filters = document.querySelectorAll('.user-filter');
+        filters.forEach(filter => {
+            filter.addEventListener('change', function() {
+                applyUserFilters();
+            });
+        });
+    }
+};
+
+// Dashboard Analytics
+const dashboardAnalytics = {
+    init() {
+        this.loadCharts();
+        this.setupRealTimeUpdates();
+    },
+
+    loadCharts() {
+        // Verification Progress Chart
+        const ctx = document.getElementById('verificationChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending', 'Failed'],
+                    datasets: [{
+                        data: [65, 25, 10],
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '75%'
+                }
+            });
+        }
+    },
+
+    setupRealTimeUpdates() {
+        // WebSocket connection for real-time updates
+        const ws = new WebSocket('ws://' + window.location.host + '/ws/admin/');
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            updateDashboardMetrics(data);
+        };
+    }
+};
+
+// Utility Functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// API Calls
+const api = {
+    async approveDocument(documentId, notes) {
+        try {
+            const response = await fetch('/api/admin/documents/approve/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ documentId, notes })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    },
+
+    async updateUserStatus(userId, status) {
+        try {
+            const response = await fetch(`/api/admin/users/${userId}/status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ status })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+};
+
+// Initialize everything
+document.addEventListener('DOMContentLoaded', function() {
+    userManagement.init();
+    dashboardAnalytics.init();
+});
+
+    </script>
+</body>
+</html>

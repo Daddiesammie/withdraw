@@ -1,0 +1,93 @@
+{% extends 'admin_portal/base.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Stats Cards -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-gray-500">Total Users</h3>
+                <p class="text-2xl font-bold">{{ total_users }}</p>
+            </div>
+            <div class="p-3 rounded-full bg-blue-100">
+                <i class="fas fa-users text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-gray-500">Pending Verifications</h3>
+                <p class="text-2xl font-bold">{{ pending_verifications }}</p>
+            </div>
+            <div class="p-3 rounded-full bg-yellow-100">
+                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-gray-500">Total Withdrawals</h3>
+                <p class="text-2xl font-bold">${{ total_withdrawals|default:"0.00" }}</p>
+            </div>
+            <div class="p-3 rounded-full bg-green-100">
+                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Users -->
+<div class="bg-white rounded-xl shadow mb-8">
+    <div class="p-6 border-b">
+        <h2 class="text-xl font-bold">Recent Users</h2>
+    </div>
+    <div class="p-6">
+        <table class="w-full">
+            <thead>
+                <tr>
+                    <th class="text-left pb-4">User</th>
+                    <th class="text-left pb-4">Email</th>
+                    <th class="text-left pb-4">Joined</th>
+                    <th class="text-left pb-4">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in recent_users %}
+                <tr>
+                    <td class="py-2">{{ user.get_full_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.date_joined|date }}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded-full text-sm {% if user.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if user.is_verified %}Verified{% else %}Pending{% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pending Documents -->
+<div class="bg-white rounded-xl shadow">
+    <div class="p-6 border-b">
+        <h2 class="text-xl font-bold">Document Review Queue</h2>
+    </div>
+    <div class="p-6">
+        <div class="text-center">
+            <p class="text-2xl font-bold text-gray-500">{{ pending_documents }}</p>
+            <p class="text-gray-500">Documents Pending Review</p>
+            <a href="{% url 'admin_portal:document_review' %}" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Review Documents
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
