@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-6">Terms of Service</h1>
+    
+    <div class="prose prose-blue max-w-none space-y-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-semibold mb-4">1. Service Agreement</h2>
+            <p class="text-gray-600">SecuredTradePay provides a secure escrow and payment processing platform for international trade transactions. By using our services, you agree to comply with these terms and all applicable trade regulations.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-semibold mb-4">2. Transaction Security</h2>
+            <p class="text-gray-600">We implement industry-leading security measures to protect your transactions. All funds are held in secure escrow accounts until both parties confirm successful completion of the trade.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-semibold mb-4">3. Verification Requirements</h2>
+            <p class="text-gray-600">To maintain the highest security standards, all users must complete our comprehensive verification process, including:</p>
+            <ul class="list-disc ml-6 mt-2">
+                <li>Withdrawal Otp</li>
+                <li>Tax Verification</li>
+                <li>Government-issued ID verification</li>
+                <li>Final Verification</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

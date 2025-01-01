@@ -14,6 +14,7 @@ from datetime import datetime
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
 
 @login_required
 def logout_view(request):
@@ -21,93 +22,136 @@ def logout_view(request):
     return redirect('login')
 
 
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.barcode import qr
+from reportlab.graphics import renderPDF
+from io import BytesIO
+from datetime import datetime
+
 def download_receipt(request):
     buffer = BytesIO()
     
-    # Set up the document
-    p = canvas.Canvas(buffer, pagesize=letter)
+    # Document setup
+    doc = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
     
-    # Add company logo/header background
-    p.setFillColorRGB(0.23, 0.35, 0.60)  # Dark blue
-    p.rect(0, height-2*inch, width, 2*inch, fill=1)
+    # Colors
+    DARK_BLUE = colors.HexColor('#1e3a8a')
+    LIGHT_BLUE = colors.HexColor('#e0f2fe')
+    GREEN = colors.HexColor('#10b981')
+    GRAY = colors.HexColor('#6b7280')
+    BLACK = colors.black
+    WHITE = colors.white
     
-    # Header text
-    p.setFillColorRGB(1, 1, 1)  # White
-    p.setFont("Helvetica-Bold", 28)
-    p.drawString(50, height-1.2*inch, "Verification Receipt")
+    # Header section
+    doc.setFillColor(DARK_BLUE)
+    doc.rect(0, height-2*inch, width, 2*inch, fill=True)
     
-    # Add decorative elements
-    p.setFillColorRGB(0.23, 0.35, 0.60)  # Dark blue
-    p.rect(50, height-2.3*inch, width-100, 2, fill=1)
+    # Header Text
+    doc.setFillColor(WHITE)
+    doc.setFont("Helvetica-Bold", 24)
+    doc.drawCentredString(width/2, height-1.2*inch, "Verification Receipt")
+    doc.setFont("Helvetica", 14)
+    doc.drawCentredString(width/2, height-1.5*inch, "Official Withdrawal Documentation")
     
-    # Transaction details section
-    p.setFillColorRGB(0.2, 0.2, 0.2)  # Dark gray
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, height-3*inch, "Transaction Details")
+    # Verified Badge
+    doc.setFillColor(GREEN)
+    doc.roundRect(width-2.5*inch, height-1.7*inch, 1.5*inch, 0.4*inch, 6, fill=True)
+    doc.setFillColor(WHITE)
+    doc.setFont("Helvetica-Bold", 12)
+    doc.drawCentredString(width-1.75*inch, height-1.5*inch, "✓ VERIFIED")
     
-    # Details box
-    p.setStrokeColorRGB(0.9, 0.9, 0.9)  # Light gray
-    p.rect(50, height-5*inch, width-100, 1.5*inch)
+    # Transaction Details Section
+    doc.setFillColor(BLACK)
+    doc.setFont("Helvetica-Bold", 16)
+    doc.drawString(0.5*inch, height-2.7*inch, "Transaction Details")
     
-    # Transaction information
-    p.setFont("Helvetica", 12)
+    # Details Box
+    doc.setFillColor(LIGHT_BLUE)
+    doc.roundRect(0.5*inch, height-5.2*inch, width-inch, 2*inch, 6, fill=True)
+    
+    # Transaction Details
     details = [
-        f"Transaction ID: #{request.user.id}{datetime.now().strftime('%Y%m%d')}",
-        f"Date: {datetime.now().strftime('%B %d, %Y')}",
-        f"Account Holder: {request.user.get_full_name()}",
-        f"Email: {request.user.email}",
-        f"Withdrawal Amount: ${request.user.withdrawal_amount:,.2f}"
+        ("Transaction ID", f"#{request.user.id}{datetime.now().strftime('%Y%m%d')}"),
+        ("Date", datetime.now().strftime('%B %d, %Y')),
+        ("Time", datetime.now().strftime('%H:%M:%S')),
+        ("Account Holder", request.user.get_full_name()),
+        ("Email", request.user.email),
+        ("Bank Name", request.user.bank_name),
+        ("Account Number", f"****{str(request.user.account_number)[-4:]}"),
+        ("Withdrawal Amount", f"${request.user.withdrawal_amount:,.2f}"),
+        ("Processing Fee", "$0.00"),
+        ("Total Amount", f"${request.user.withdrawal_amount:,.2f}")
     ]
     
-    y_position = height-3.3*inch
-    for detail in details:
-        p.drawString(70, y_position, detail)
-        y_position -= 20
+    doc.setFont("Helvetica", 11)
+    doc.setFillColor(BLACK)
+    y_position = height-3.2*inch
+    for label, value in details:
+        doc.drawString(0.7*inch, y_position, f"{label}:")
+        doc.drawString(2.7*inch, y_position, value)
+        y_position -= 0.25*inch
     
-    # Status indicator
-    p.setFillColorRGB(0.13, 0.55, 0.13)  # Green
-    p.roundRect(width-200, height-3.3*inch, 130, 25, 12, fill=1)
-    p.setFillColorRGB(1, 1, 1)  # White
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(width-180, height-3*inch, "✓ VERIFIED")
+    # Verification Steps
+    doc.setFont("Helvetica-Bold", 16)
+    doc.drawString(0.5*inch, height-5.7*inch, "Verification Process Completed")
     
-    # Verification steps section
-    p.setFillColorRGB(0.2, 0.2, 0.2)  # Dark gray
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, height-5.5*inch, "Completed Verification Steps")
-    
-    # Steps with checkmarks
     steps = [
-        "Withdrawal OTP Verification",
-        "Tax Verification",
-        "Identity Verification",
-        "Final Verification"
+        ("Identity Verification", "Government ID and proof of address verified"),
+        ("Tax Compliance", "Tax obligations verified and cleared"),
+        ("Security Check", "Two-factor authentication completed"),
+        ("Bank Verification", "Account ownership confirmed"),
+        ("Final Approval", "Transaction approved by compliance team")
     ]
     
-    y_position = height-6*inch
-    p.setFont("Helvetica", 12)
-    for step in steps:
-        p.setFillColorRGB(0.13, 0.55, 0.13)  # Green
-        p.drawString(70, y_position, "✓")
-        p.setFillColorRGB(0.2, 0.2, 0.2)  # Dark gray
-        p.drawString(90, y_position, step)
-        y_position -= 25
+    y_position = height-6.2*inch
+    for step, description in steps:
+        # Green checkmark
+        doc.setFillColor(GREEN)
+        doc.setFont("Helvetica-Bold", 14)
+        doc.drawString(0.6*inch, y_position, "✓")
+        
+        # Step title and description
+        doc.setFillColor(BLACK)
+        doc.setFont("Helvetica-Bold", 11)
+        doc.drawString(inch, y_position, step)
+        doc.setFont("Helvetica", 9)
+        doc.setFillColor(GRAY)
+        doc.drawString(inch, y_position-0.2*inch, description)
+        y_position -= 0.5*inch
+    
+    # QR Code for digital verification
+    qr_code = qr.QrCodeWidget(f"https://yourcompany.com/verify/{request.user.id}{datetime.now().strftime('%Y%m%d')}")
+    qr_drawing = Drawing(1*inch, 1*inch, transform=[1.5,0,0,1.5,0,0])
+    qr_drawing.add(qr_code)
+    renderPDF.draw(qr_drawing, doc, 6.5*inch, 1.5*inch)
+    
+    doc.setFillColor(BLACK)
+    doc.setFont("Helvetica", 8)
+    doc.drawCentredString(7*inch, 1.3*inch, "Scan to verify")
+    
+    # Signature Section
+    doc.setFont("Helvetica-Bold", 12)
+    doc.drawString(0.5*inch, 1.2*inch, "Client Signature")
+    doc.line(0.5*inch, inch, 3*inch, inch)
+    doc.setFont("Helvetica", 10)
+    doc.drawString(0.5*inch, 0.8*inch, f"Date: {datetime.now().strftime('%B %d, %Y')}")
     
     # Footer
-    p.setFillColorRGB(0.23, 0.35, 0.60)  # Dark blue
-    p.rect(0, 0, width, 1*inch, fill=1)
-    p.setFillColorRGB(1, 1, 1)  # White
-    p.setFont("Helvetica", 10)
-    p.drawString(50, 0.5*inch, "This is an automatically generated receipt. Thank you for using our service.")
+    doc.setFillColor(DARK_BLUE)
+    doc.rect(0, 0, width, 0.6*inch, fill=True)
+    doc.setFillColor(WHITE)
+    doc.setFont("Helvetica-Bold", 9)
+    doc.drawString(0.5*inch, 0.4*inch, "Contact: support@yourcompany.com | +1 (555) 123-4567 | www.yourcompany.com")
+    doc.setFont("Helvetica", 7)
+    doc.drawString(0.5*inch, 0.2*inch, "This is an automatically generated receipt. Thank you for using our service.")
     
-    # QR Code placeholder (you can add an actual QR code here)
-    p.setStrokeColorRGB(1, 1, 1)
-    p.rect(width-100, 0.25*inch, 0.5*inch, 0.5*inch, stroke=1)
-    
-    p.showPage()
-    p.save()
-    
+    doc.save()
     pdf = buffer.getvalue()
     buffer.close()
     
@@ -118,6 +162,23 @@ def download_receipt(request):
     return response
 
 
+
+
+
+@login_required
+def receipt_preview(request):
+    context = {
+        'current_date': datetime.now().strftime('%B %d, %Y'),
+        'current_time': datetime.now().strftime('%H:%M:%S'),
+        'verification_steps': [
+            ("Identity Verification", "Government ID and proof of address verified"),
+            ("Tax Compliance", "Tax obligations verified and cleared"),
+            ("Security Check", "Two-factor authentication completed"),
+            ("Bank Verification", "Account ownership confirmed"),
+            ("Final Approval", "Transaction approved by compliance team")
+        ]
+    }
+    return render(request, 'users/receipt_preview.html', context)
 
 def verification_home(request):
     if not request.user.is_authenticated:
@@ -206,4 +267,12 @@ def verification_complete(request):
 
 
 
+class TermsOfServiceView(TemplateView):
+    template_name = 'users/terms.html'
+
+class HelpCenterView(TemplateView):
+    template_name = 'users/help.html'
+
+class SecurityView(TemplateView):
+    template_name = 'users/security.html'
 

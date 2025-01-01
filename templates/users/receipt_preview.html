@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-8 bg-white shadow-lg">
+    <!-- Receipt Preview -->
+    <div class="border rounded-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-900 p-8 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="w-16 h-16 border-2 border-white flex items-center justify-center">
+                        LOGO
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold">Verification Receipt</h1>
+                    <p>Official Withdrawal Documentation</p>
+                </div>
+                <div class="bg-green-500 px-4 py-2 rounded-lg">
+                    ✓ VERIFIED
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Details -->
+        <div class="p-8">
+            <h2 class="text-xl font-bold mb-4">Transaction Details</h2>
+            <div class="grid grid-cols-2 gap-8 border rounded-lg p-6 bg-gray-50">
+                <div>
+                    <p class="mb-2">Transaction ID: #{{ request.user.id }}{{ current_date }}</p>
+                    <p class="mb-2">Date: {{ current_date }}</p>
+                    <p class="mb-2">Time: {{ current_time }}</p>
+                    <p class="mb-2">Account Holder: {{ request.user.get_full_name }}</p>
+                    <p>Email: {{ request.user.email }}</p>
+                </div>
+                <div>
+                    <p class="mb-2">Bank Name: {{ request.user.bank_name }}</p>
+                    <p class="mb-2">Account Number: ****{{ request.user.account_number|slice:"-4:" }}</p>
+                    <p class="mb-2">Withdrawal Amount: ${{ request.user.withdrawal_amount }}</p>
+                    <p class="mb-2">Processing Fee: $0.00</p>
+                    <p class="font-bold">Total Amount: ${{ request.user.withdrawal_amount }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Steps -->
+        <div class="p-8">
+            <h2 class="text-xl font-bold mb-4">Verification Process Completed</h2>
+            <div class="space-y-4">
+                {% for step, desc in verification_steps %}
+                <div class="flex items-start">
+                    <div class="w-4 h-4 rounded-full bg-green-500 mt-1 mr-3"></div>
+                    <div>
+                        <h3 class="font-bold">{{ step }}</h3>
+                        <p class="text-sm text-gray-600">{{ desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="p-8 border-t">
+            <div class="max-w-sm">
+                <h3 class="font-bold mb-2">Client Signature</h3>
+                <div class="border-b border-black mb-2"></div>
+                <p class="text-sm">Date: {{ current_date }}</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-blue-900 p-6 text-white text-sm">
+            <div class="mb-4">
+                <h3 class="font-bold mb-2">Contact Information</h3>
+                <p>Email: support@yourcompany.com | Phone: +1 (555) 123-4567 | Website: www.yourcompany.com</p>
+            </div>
+            <p class="text-xs">This is an automatically generated receipt. Thank you for using our service.</p>
+        </div>
+    </div>
+
+    <!-- Download Button -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'users:download_receipt' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+            Download PDF Receipt
+        </a>
+    </div>
+</div>
+{% endblock %}

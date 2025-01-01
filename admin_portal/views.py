@@ -68,16 +68,35 @@ def create_user(request):
     return render(request, 'admin_portal/create_user.html')
 
 
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import timedelta
+from django.contrib.admin.views.decorators import staff_member_required
+
 @staff_member_required
 def dashboard(request):
+    # Calculate user growth percentage
+    last_month = timezone.now() - timedelta(days=30)
+    users_last_month = User.objects.filter(date_joined__lte=last_month).count()
+    users_this_month = User.objects.filter(date_joined__gt=last_month).count()
+    
+    user_increase = (
+        ((users_this_month - users_last_month) / users_last_month * 100)
+        if users_last_month > 0
+        else 100
+    )
+
     context = {
         'total_users': User.objects.count(),
         'pending_verifications': User.objects.filter(is_verified=False).count(),
-        'total_withdrawals': User.objects.aggregate(Sum('withdrawal_amount'))['withdrawal_amount__sum'],
+        'total_withdrawals': User.objects.aggregate(Sum('withdrawal_amount'))['withdrawal_amount__sum'] or 0.00,
         'recent_users': User.objects.order_by('-date_joined')[:5],
-        'pending_documents': Document.objects.filter(documentreview__status='pending').count()
+        'pending_documents': Document.objects.filter(documentreview__status='pending').count(),
+        'user_increase': round(user_increase, 1)
     }
+
     return render(request, 'admin_portal/dashboard.html', context)
+
 
 @staff_member_required
 def user_list(request):

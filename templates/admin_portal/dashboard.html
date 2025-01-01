@@ -1,93 +1,137 @@
 {% extends 'admin_portal/base.html' %}
 
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Stats Cards -->
-    <div class="bg-white rounded-xl shadow p-6">
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-aos="fade-up">
+    <!-- Total Users Card -->
+    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-gray-500">Total Users</h3>
-                <p class="text-2xl font-bold">{{ total_users }}</p>
+                <h3 class="text-gray-500 font-medium">Total Users</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">{{ total_users }}</p>
+                <p class="text-sm text-green-600 mt-2">
+                    <i class="fas fa-arrow-up"></i> 12% increase
+                </p>
             </div>
-            <div class="p-3 rounded-full bg-blue-100">
-                <i class="fas fa-users text-blue-600 text-xl"></i>
+            <div class="p-4 rounded-full bg-blue-50 ring-4 ring-blue-50">
+                <i class="fas fa-users text-blue-600 text-2xl"></i>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow p-6">
+    <!-- Pending Verifications Card -->
+    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-gray-500">Pending Verifications</h3>
-                <p class="text-2xl font-bold">{{ pending_verifications }}</p>
+                <h3 class="text-gray-500 font-medium">Pending Verifications</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">{{ pending_verifications }}</p>
+                <p class="text-sm text-yellow-600 mt-2">
+                    <i class="fas fa-clock"></i> Requires attention
+                </p>
             </div>
-            <div class="p-3 rounded-full bg-yellow-100">
-                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+            <div class="p-4 rounded-full bg-yellow-50 ring-4 ring-yellow-50">
+                <i class="fas fa-clock text-yellow-600 text-2xl"></i>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow p-6">
+    <!-- Total Withdrawals Card -->
+    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-gray-500">Total Withdrawals</h3>
-                <p class="text-2xl font-bold">${{ total_withdrawals|default:"0.00" }}</p>
+                <h3 class="text-gray-500 font-medium">Total Withdrawals</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">${{ total_withdrawals|default:"0.00" }}</p>
+                <p class="text-sm text-green-600 mt-2">
+                    <i class="fas fa-chart-line"></i> Daily volume
+                </p>
             </div>
-            <div class="p-3 rounded-full bg-green-100">
-                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+            <div class="p-4 rounded-full bg-green-50 ring-4 ring-green-50">
+                <i class="fas fa-dollar-sign text-green-600 text-2xl"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Users -->
-<div class="bg-white rounded-xl shadow mb-8">
-    <div class="p-6 border-b">
-        <h2 class="text-xl font-bold">Recent Users</h2>
+<!-- Recent Users Section -->
+<div class="bg-white rounded-2xl shadow-sm mb-8" data-aos="fade-up" data-aos-delay="100">
+    <div class="p-6 border-b border-gray-100">
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">Recent Users</h2>
+            <button class="text-blue-600 hover:text-blue-700 font-medium">View All</button>
+        </div>
     </div>
     <div class="p-6">
-        <table class="w-full">
-            <thead>
-                <tr>
-                    <th class="text-left pb-4">User</th>
-                    <th class="text-left pb-4">Email</th>
-                    <th class="text-left pb-4">Joined</th>
-                    <th class="text-left pb-4">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in recent_users %}
-                <tr>
-                    <td class="py-2">{{ user.get_full_name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.date_joined|date }}</td>
-                    <td>
-                        <span class="px-2 py-1 rounded-full text-sm {% if user.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                            {% if user.is_verified %}Verified{% else %}Pending{% endif %}
-                        </span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-gray-500 text-sm uppercase">
+                        <th class="text-left pb-4 font-medium">User</th>
+                        <th class="text-left pb-4 font-medium">Email</th>
+                        <th class="text-left pb-4 font-medium">Joined</th>
+                        <th class="text-left pb-4 font-medium">Status</th>
+                        <th class="text-left pb-4 font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr class="border-t border-gray-50">
+                        <td class="py-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                                    {{ user.get_full_name|first|upper }}
+                                </div>
+                                <span class="ml-3 font-medium">{{ user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        <td class="text-gray-600">{{ user.email }}</td>
+                        <td class="text-gray-600">{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center
+                                {% if user.is_verified %}
+                                    bg-green-50 text-green-700
+                                {% else %}
+                                    bg-yellow-50 text-yellow-700
+                                {% endif %}">
+                                <span class="w-2 h-2 rounded-full 
+                                    {% if user.is_verified %}
+                                        bg-green-500
+                                    {% else %}
+                                        bg-yellow-500
+                                    {% endif %} mr-2"></span>
+                                {% if user.is_verified %}Verified{% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="text-blue-600 hover:text-blue-700">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- Pending Documents -->
-<div class="bg-white rounded-xl shadow">
-    <div class="p-6 border-b">
-        <h2 class="text-xl font-bold">Document Review Queue</h2>
+<!-- Document Review Section -->
+<div class="bg-white rounded-2xl shadow-sm" data-aos="fade-up" data-aos-delay="200">
+    <div class="p-6 border-b border-gray-100">
+        <h2 class="text-xl font-bold text-gray-800">Document Review Queue</h2>
     </div>
-    <div class="p-6">
-        <div class="text-center">
-            <p class="text-2xl font-bold text-gray-500">{{ pending_documents }}</p>
-            <p class="text-gray-500">Documents Pending Review</p>
-            <a href="{% url 'admin_portal:document_review' %}" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg">
-                Review Documents
-            </a>
+    <div class="p-8 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 mb-4">
+            <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
         </div>
+        <p class="text-3xl font-bold text-gray-800 mb-2">{{ pending_documents }}</p>
+        <p class="text-gray-500 mb-6">Documents Pending Review</p>
+        <a href="{% url 'admin_portal:document_review' %}" 
+           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-search mr-2"></i>
+            Review Documents
+        </a>
     </div>
 </div>
 {% endblock %}

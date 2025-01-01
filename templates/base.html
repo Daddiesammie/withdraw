@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureWithdraw Pro | Secure Financial Transactions</title>
+    <title>{{ site_settings.site_name }} | Secure Financial Transactions</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -32,7 +32,9 @@
                 <div class="flex items-center">
                     <a href="{% url 'users:verification_home' %}" class="flex items-center space-x-3">
                         <i class="fas fa-lock-alt text-blue-600 text-2xl"></i>
-                        <span class="font-bold text-xl text-gray-800">SecureWithdraw<span class="text-blue-600">Pro</span></span>
+                        <span class="font-bold text-xl text-gray-800">{{ site_settings.site_name }}<span class="text-blue-600">
+
+                        </span></span>
                     </a>
                 </div>
 
@@ -112,31 +114,32 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="text-center md:text-left">
-                    <h3 class="text-lg font-semibold mb-4">About SecureWithdrawPro</h3>
-                    <p class="text-sm">Secure, fast, and reliable withdrawal processing system with multi-layer verification for your peace of mind.</p>
+                    <h3 class="text-lg font-semibold mb-4">About {{ site_settings.site_name }}</h3>
+                    <p class="text-sm">{{ site_settings.about }}</p>
                 </div>
                 <div class="text-center md:text-left">
                     <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Security</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="{% url 'users:help' %}" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="{% url 'users:security' %}" class="hover:text-white transition-colors">Security</a></li>
+                        <li><a href="{% url 'users:terms' %}" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        
                     </ul>
                 </div>
                 <div class="text-center md:text-left">
                     <h3 class="text-lg font-semibold mb-4">Contact Support</h3>
                     <ul class="space-y-2 text-sm">
                         <li class="flex items-center justify-center md:justify-start">
-                            <i class="fas fa-envelope mr-2"></i>support@securewithdraw.pro
+                            <i class="fas fa-envelope mr-2"></i>{{ site_settings.email }}
                         </li>
                         <li class="flex items-center justify-center md:justify-start">
-                            <i class="fas fa-phone mr-2"></i>+1 (888) 123-4567
+                            <i class="fas fa-phone mr-2"></i>{{ site_settings.phone }}
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
-                <p>&copy; {% now "Y" %} SecureWithdrawPro. All rights reserved.</p>
+                <p>&copy; {% now "Y" %} {{ site_settings.site_name }}. All rights reserved.</p>
             </div>
         </div>
     </footer>

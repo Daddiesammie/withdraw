@@ -13,6 +13,7 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
+    'django_admin_kubi',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,7 +24,7 @@ INSTALLED_APPS = [
     # Local apps
     'users.apps.UsersConfig',
     'admin_portal',
-    
+    'site_settings',
     # Third party apps
     'crispy_forms',
 ]
@@ -51,6 +52,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'site_settings.context_processors.site_settings',
             ],
         },
     },
